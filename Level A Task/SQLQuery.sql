@@ -1,231 +1,292 @@
 -- 1. List of all customers
-SELECT * FROM Customers;
+SELECT * FROM Sales.Customer;
 
--- 2. List of all customers where company name ending in N
-SELECT * FROM Customers WHERE CompanyName LIKE '%N';
+-- 2. List of all customers where store name ending in N
+SELECT * FROM Sales.Customer c
+JOIN Sales.Store s ON c.StoreID = s.BusinessEntityID
+WHERE s.Name LIKE '%N';
 
 -- 3. List of all customers who live in Berlin or London
-SELECT * FROM Customers WHERE City IN ('Berlin', 'London');
+SELECT DISTINCT c.*
+FROM Sales.Customer c
+JOIN Person.Person pp ON c.PersonID = pp.BusinessEntityID
+JOIN Person.BusinessEntityAddress bea ON pp.BusinessEntityID = bea.BusinessEntityID
+JOIN Person.Address a ON bea.AddressID = a.AddressID
+WHERE a.City IN ('Berlin', 'London');
 
 -- 4. List of all customers who live in UK or USA
-SELECT * FROM Customers WHERE Country IN ('UK', 'USA');
+SELECT DISTINCT c.*
+FROM Sales.Customer c
+JOIN Person.Person pp ON c.PersonID = pp.BusinessEntityID
+JOIN Person.BusinessEntityAddress bea ON pp.BusinessEntityID = bea.BusinessEntityID
+JOIN Person.Address a ON bea.AddressID = a.AddressID
+JOIN Person.StateProvince sp ON a.StateProvinceID = sp.StateProvinceID
+JOIN Person.CountryRegion cr ON sp.CountryRegionCode = cr.CountryRegionCode
+WHERE cr.Name IN ('United Kingdom', 'United States');
 
 -- 5. List of all products sorted by product name
-SELECT * FROM Products ORDER BY ProductName;
+SELECT * FROM Production.Product ORDER BY Name;
 
 -- 6. List of all products where product name starts with an A
-SELECT * FROM Products WHERE ProductName LIKE 'A%';
+SELECT * FROM Production.Product WHERE Name LIKE 'A%';
 
 -- 7. List of customers who ever placed an order
-SELECT DISTINCT Customers.* 
-FROM Customers 
-JOIN Orders ON Customers.CustomerID = Orders.CustomerID;
+SELECT DISTINCT c.*
+FROM Sales.Customer c
+JOIN Sales.SalesOrderHeader soh ON c.CustomerID = soh.CustomerID;
 
 -- 8. List of Customers who live in London and have bought chai
-SELECT DISTINCT Customers.*
-FROM Customers 
-JOIN Orders ON Customers.CustomerID = Orders.CustomerID
-JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID
-JOIN Products ON OrderDetails.ProductID = Products.ProductID
-WHERE Customers.City = 'London' AND Products.ProductName = 'Chai';
+SELECT DISTINCT c.*
+FROM Sales.Customer c
+JOIN Sales.SalesOrderHeader soh ON c.CustomerID = soh.CustomerID
+JOIN Sales.SalesOrderDetail sod ON soh.SalesOrderID = sod.SalesOrderID
+JOIN Production.Product p ON sod.ProductID = p.ProductID
+JOIN Person.Person pp ON c.PersonID = pp.BusinessEntityID
+JOIN Person.BusinessEntityAddress bea ON pp.BusinessEntityID = bea.BusinessEntityID
+JOIN Person.Address a ON bea.AddressID = a.AddressID
+WHERE a.City = 'London' AND p.Name = 'Chai';
 
 -- 9. List of customers who never place an order
-SELECT * FROM Customers 
-WHERE CustomerID NOT IN (SELECT DISTINCT CustomerID FROM Orders);
+SELECT * FROM Sales.Customer
+WHERE CustomerID NOT IN (SELECT CustomerID FROM Sales.SalesOrderHeader);
 
 -- 10. List of customers who ordered Tofu
-SELECT DISTINCT Customers.*
-FROM Customers 
-JOIN Orders ON Customers.CustomerID = Orders.CustomerID
-JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID
-JOIN Products ON OrderDetails.ProductID = Products.ProductID
-WHERE Products.ProductName = 'Tofu';
+SELECT DISTINCT c.*
+FROM Sales.Customer c
+JOIN Sales.SalesOrderHeader soh ON c.CustomerID = soh.CustomerID
+JOIN Sales.SalesOrderDetail sod ON soh.SalesOrderID = sod.SalesOrderID
+JOIN Production.Product p ON sod.ProductID = p.ProductID
+WHERE p.Name = 'Tofu';
 
 -- 11. Details of first order of the system
-SELECT TOP 1 * FROM Orders ORDER BY OrderDate ASC;
+SELECT TOP 1 * FROM Sales.SalesOrderHeader ORDER BY OrderDate;
 
 -- 12. Find the details of most expensive order date
-SELECT TOP 1 Orders.*, SUM(OrderDetails.UnitPrice * OrderDetails.Quantity) AS OrderTotal
-FROM Orders
-JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID
-GROUP BY Orders.OrderID, Orders.OrderDate
-ORDER BY OrderTotal DESC;
+SELECT TOP 1 soh.*, SUM(sod.UnitPrice * sod.OrderQty) AS TotalAmount
+FROM Sales.SalesOrderHeader soh
+JOIN Sales.SalesOrderDetail sod ON soh.SalesOrderID = sod.SalesOrderID
+GROUP BY soh.SalesOrderID, soh.OrderDate
+ORDER BY TotalAmount DESC;
 
 -- 13. For each order get the OrderID and Average quantity of items in that order
-SELECT OrderID, AVG(Quantity) AS AverageQuantity
-FROM OrderDetails
-GROUP BY OrderID;
+SELECT SalesOrderID, AVG(OrderQty) AS AvgQuantity
+FROM Sales.SalesOrderDetail
+GROUP BY SalesOrderID;
 
--- 14. For each order get the OrderID, minimum quantity and maximum quantity for that order
-SELECT OrderID, MIN(Quantity) AS MinQuantity, MAX(Quantity) AS MaxQuantity
-FROM OrderDetails
-GROUP BY OrderID;
+-- 14. For each order get the orderID, minimum quantity and maximum quantity for that order
+SELECT SalesOrderID, MIN(OrderQty) AS MinQuantity, MAX(OrderQty) AS MaxQuantity
+FROM Sales.SalesOrderDetail
+GROUP BY SalesOrderID;
 
 -- 15. Get a list of all managers and total number of employees who report to them.
-SELECT ManagerID, COUNT(EmployeeID) AS NumberOfEmployees
-FROM Employees
-GROUP BY ManagerID;
+SELECT m.BusinessEntityID AS ManagerID, COUNT(e.BusinessEntityID) AS NumberOfEmployees
+FROM HumanResources.Employee e
+JOIN HumanResources.Employee m ON e.OrganizationNode.GetAncestor(1) = m.OrganizationNode
+GROUP BY m.BusinessEntityID;
 
 -- 16. Get the OrderID and the total quantity for each order that has a total quantity of greater than 300
-SELECT OrderID, SUM(Quantity) AS TotalQuantity
-FROM OrderDetails
-GROUP BY OrderID
-HAVING SUM(Quantity) > 300;
+SELECT SalesOrderID, SUM(OrderQty) AS TotalQuantity
+FROM Sales.SalesOrderDetail
+GROUP BY SalesOrderID
+HAVING SUM(OrderQty) > 300;
 
 -- 17. List of all orders placed on or after 1996/12/31
-SELECT * FROM Orders WHERE OrderDate >= '1996-12-31';
+SELECT * FROM Sales.SalesOrderHeader WHERE OrderDate >= '1996-12-31';
 
 -- 18. List of all orders shipped to Canada
-SELECT * FROM Orders WHERE ShipCountry = 'Canada';
+SELECT soh.*
+FROM Sales.SalesOrderHeader soh
+JOIN Person.Address a ON soh.ShipToAddressID = a.AddressID
+JOIN Person.StateProvince sp ON a.StateProvinceID = sp.StateProvinceID
+JOIN Person.CountryRegion cr ON sp.CountryRegionCode = cr.CountryRegionCode
+WHERE cr.Name = 'Canada';
 
 -- 19. List of all orders with order total > 200
-SELECT Orders.*
-FROM Orders
-JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID
-GROUP BY Orders.OrderID
-HAVING SUM(OrderDetails.UnitPrice * OrderDetails.Quantity) > 200;
+SELECT soh.*
+FROM Sales.SalesOrderHeader soh
+JOIN (
+    SELECT SalesOrderID, SUM(UnitPrice * OrderQty) AS OrderTotal
+    FROM Sales.SalesOrderDetail
+    GROUP BY SalesOrderID
+) AS OrderTotals ON soh.SalesOrderID = OrderTotals.SalesOrderID
+WHERE OrderTotals.OrderTotal > 200;
 
 -- 20. List of countries and sales made in each country
-SELECT ShipCountry, SUM(OrderDetails.UnitPrice * OrderDetails.Quantity) AS TotalSales
-FROM Orders
-JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID
-GROUP BY ShipCountry;
+SELECT cr.Name AS Country, SUM(sod.UnitPrice * sod.OrderQty) AS TotalSales
+FROM Sales.SalesOrderHeader soh
+JOIN Sales.SalesOrderDetail sod ON soh.SalesOrderID = sod.SalesOrderID
+JOIN Person.Address a ON soh.ShipToAddressID = a.AddressID
+JOIN Person.StateProvince sp ON a.StateProvinceID = sp.StateProvinceID
+JOIN Person.CountryRegion cr ON sp.CountryRegionCode = cr.CountryRegionCode
+GROUP BY cr.Name;
 
 -- 21. List of Customer ContactName and number of orders they placed
-SELECT Customers.ContactName, COUNT(Orders.OrderID) AS NumberOfOrders
-FROM Customers
-JOIN Orders ON Customers.CustomerID = Orders.CustomerID
-GROUP BY Customers.ContactName;
+SELECT pp.FirstName + ' ' + pp.LastName AS ContactName, COUNT(soh.SalesOrderID) AS NumberOfOrders
+FROM Sales.Customer c
+JOIN Sales.SalesOrderHeader soh ON c.CustomerID = soh.CustomerID
+JOIN Person.Person pp ON c.PersonID = pp.BusinessEntityID
+GROUP BY pp.FirstName, pp.LastName;
 
 -- 22. List of customer contact names who have placed more than 3 orders
-SELECT Customers.ContactName
-FROM Customers
-JOIN Orders ON Customers.CustomerID = Orders.CustomerID
-GROUP BY Customers.ContactName
-HAVING COUNT(Orders.OrderID) > 3;
+SELECT pp.FirstName + ' ' + pp.LastName AS ContactName
+FROM Sales.Customer c
+JOIN Sales.SalesOrderHeader soh ON c.CustomerID = soh.CustomerID
+JOIN Person.Person pp ON c.PersonID = pp.BusinessEntityID
+GROUP BY pp.FirstName, pp.LastName
+HAVING COUNT(soh.SalesOrderID) > 3;
 
 -- 23. List of discontinued products which were ordered between 1/1/1997 and 1/1/1998
-SELECT DISTINCT Products.*
-FROM Products
-JOIN OrderDetails ON Products.ProductID = OrderDetails.ProductID
-JOIN Orders ON OrderDetails.OrderID = Orders.OrderID
-WHERE Products.Discontinued = 1 AND Orders.OrderDate BETWEEN '1997-01-01' AND '1998-01-01';
+SELECT DISTINCT p.*
+FROM Production.Product p
+JOIN Sales.SalesOrderDetail sod ON p.ProductID = sod.ProductID
+JOIN Sales.SalesOrderHeader soh ON sod.SalesOrderID = soh.SalesOrderID
+WHERE p.DiscontinuedDate IS NOT NULL AND soh.OrderDate BETWEEN '1997-01-01' AND '1998-01-01';
 
--- 24. List of employee first name, last name, supervisor first name, last name
-SELECT e1.FirstName AS EmployeeFirstName, e1.LastName AS EmployeeLastName, 
-       e2.FirstName AS SupervisorFirstName, e2.LastName AS SupervisorLastName
-FROM Employees e1
-LEFT JOIN Employees e2 ON e1.ReportsTo = e2.EmployeeID;
+-- 24. List of employee firstname, lastname, supervisor FirstName, LastName
+SELECT
+    e.BusinessEntityID AS EmployeeID,
+    p.FirstName AS EmployeeFirstName,
+    p.LastName AS EmployeeLastName,
+    m.BusinessEntityID AS ManagerID,
+    pm.FirstName AS ManagerFirstName,
+    pm.LastName AS ManagerLastName
+FROM HumanResources.Employee AS e
+INNER JOIN Person.Person AS p ON e.BusinessEntityID = p.BusinessEntityID
+LEFT JOIN HumanResources.Employee AS m ON e.OrganizationNode.GetAncestor(1) = m.OrganizationNode
+LEFT JOIN Person.Person AS pm ON m.BusinessEntityID = pm.BusinessEntityID;
 
--- 25. List of EmployeeID and total sales conducted by employee
-SELECT Employees.EmployeeID, SUM(OrderDetails.UnitPrice * OrderDetails.Quantity) AS TotalSales
-FROM Employees
-JOIN Orders ON Employees.EmployeeID = Orders.EmployeeID
-JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID
-GROUP BY Employees.EmployeeID;
+-- 25. List of Employees id and total sale conducted by employee
+SELECT e.BusinessEntityID, SUM(sod.UnitPrice * sod.OrderQty) AS TotalSales
+FROM HumanResources.Employee e
+JOIN Sales.SalesOrderHeader soh ON e.BusinessEntityID = soh.SalesPersonID
+JOIN Sales.SalesOrderDetail sod ON soh.SalesOrderID = sod.SalesOrderID
+GROUP BY e.BusinessEntityID;
 
 -- 26. List of employees whose FirstName contains character a
-SELECT * FROM Employees WHERE FirstName LIKE '%a%';
+SELECT 
+    e.BusinessEntityID,
+    p.FirstName,
+    p.LastName
+FROM HumanResources.Employee e
+JOIN Person.Person p ON e.BusinessEntityID = p.BusinessEntityID
+WHERE p.FirstName LIKE '%a%';
 
--- 27. List of managers who have more than four people reporting to them
-SELECT ManagerID
-FROM Employees
-GROUP BY ManagerID
-HAVING COUNT(EmployeeID) > 4;
+-- 27. List of managers who have more than four people reporting to them.
+SELECT 
+    ManagerID = m.BusinessEntityID,
+    ManagerFirstName = pm.FirstName,
+    ManagerLastName = pm.LastName,
+    NumberOfReports = COUNT(e.BusinessEntityID)
+FROM HumanResources.Employee e
+JOIN HumanResources.Employee m ON e.OrganizationNode.GetAncestor(1) = m.OrganizationNode
+JOIN Person.Person pm ON m.BusinessEntityID = pm.BusinessEntityID
+GROUP BY m.BusinessEntityID, pm.FirstName, pm.LastName
+HAVING COUNT(e.BusinessEntityID) > 4;
 
 -- 28. List of Orders and ProductNames
-SELECT Orders.OrderID, Products.ProductName
-FROM Orders
-JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID
-JOIN Products ON OrderDetails.ProductID = Products.ProductID;
+SELECT soh.SalesOrderID, p.Name AS ProductName
+FROM Sales.SalesOrderHeader soh
+JOIN Sales.SalesOrderDetail sod ON soh.SalesOrderID = sod.SalesOrderID
+JOIN Production.Product p ON sod.ProductID = p.ProductID;
 
 -- 29. List of orders placed by the best customer
-SELECT Orders.*
-FROM Orders
-JOIN Customers ON Orders.CustomerID = Customers.CustomerID
-WHERE Customers.CustomerID = (
-    SELECT TOP 1 CustomerID
-    FROM Orders
+SELECT soh.*
+FROM Sales.SalesOrderHeader soh
+JOIN (
+    SELECT TOP 1 CustomerID, COUNT(SalesOrderID) AS NumberOfOrders
+    FROM Sales.SalesOrderHeader
     GROUP BY CustomerID
-    ORDER BY SUM(OrderDetails.UnitPrice * OrderDetails.Quantity) DESC
-);
+    ORDER BY NumberOfOrders DESC
+) AS BestCustomer ON soh.CustomerID = BestCustomer.CustomerID;
+
 
 -- 30. List of orders placed by customers who do not have a Fax number
-SELECT Orders.*
-FROM Orders
-JOIN Customers ON Orders.CustomerID = Customers.CustomerID
-WHERE Customers.Fax IS NULL;
+SELECT soh.*
+FROM Sales.SalesOrderHeader soh
+JOIN Sales.Customer c ON soh.CustomerID = c.CustomerID
+LEFT JOIN Person.PersonPhone pp ON c.PersonID = pp.BusinessEntityID AND pp.PhoneNumberType = 'FAX'
+WHERE pp.PhoneNumber IS NULL;
+
 
 -- 31. List of Postal codes where the product Tofu was shipped
-SELECT DISTINCT Orders.ShipPostalCode
-FROM Orders
-JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID
-JOIN Products ON OrderDetails.ProductID = Products.ProductID
-WHERE Products.ProductName = 'Tofu';
+SELECT DISTINCT soh.PostalCode
+FROM Sales.SalesOrderHeader soh
+JOIN Sales.SalesOrderDetail sod ON soh.SalesOrderID = sod.SalesOrderID
+JOIN Production.Product p ON sod.ProductID = p.ProductID
+JOIN Sales.Customer c ON soh.CustomerID = c.CustomerID
+WHERE p.Name = 'Tofu';
 
--- 32. List of product names that were shipped to France
-SELECT DISTINCT Products.ProductName
-FROM Products
-JOIN OrderDetails ON Products.ProductID = OrderDetails.ProductID
-JOIN Orders ON OrderDetails.OrderID = Orders.OrderID
-WHERE Orders.ShipCountry = 'France';
+-- 32. List of product Names that were shipped to France
+SELECT TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE COLUMN_NAME LIKE '%Country%' OR COLUMN_NAME LIKE '%Region%';
+
 
 -- 33. List of ProductNames and Categories for the supplier 'Specialty Biscuits, Ltd.'
-SELECT Products.ProductName, Categories.CategoryName
-FROM Products
-JOIN Suppliers ON Products.SupplierID = Suppliers.SupplierID
-JOIN Categories ON Products.CategoryID = Categories.CategoryID
-WHERE Suppliers.CompanyName = 'Specialty Biscuits, Ltd.';
+SELECT p.Name AS ProductName, pc.Name AS CategoryName
+FROM Production.Product p
+JOIN Purchasing.ProductVendor pv ON p.ProductID = pv.ProductID
+JOIN Purchasing.Vendor v ON pv.BusinessEntityID = v.BusinessEntityID
+JOIN Production.ProductSubcategory ps ON p.ProductSubcategoryID = ps.ProductSubcategoryID
+JOIN Production.ProductCategory pc ON ps.ProductCategoryID = pc.ProductCategoryID
+WHERE v.Name = 'Specialty Biscuits, Ltd.';
 
 -- 34. List of products that were never ordered
-SELECT * FROM Products
-WHERE ProductID NOT IN (SELECT DISTINCT ProductID FROM OrderDetails);
+SELECT * FROM Production.Product
+WHERE ProductID NOT IN (SELECT ProductID FROM Sales.SalesOrderDetail);
 
 -- 35. List of products where units in stock is less than 10 and units on order are 0.
-SELECT * FROM Products
+SELECT * FROM Production.Product
 WHERE UnitsInStock < 10 AND UnitsOnOrder = 0;
 
 -- 36. List of top 10 countries by sales
-SELECT TOP 10 ShipCountry, SUM(OrderDetails.UnitPrice * OrderDetails.Quantity) AS TotalSales
-FROM Orders
-JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID
-GROUP BY ShipCountry
-ORDER BY TotalSales DESC;
+SELECT soh.ShipCountryRegionCode, SUM(sod.UnitPrice * sod.OrderQty) AS TotalSales
+FROM Sales.SalesOrderHeader soh
+JOIN Sales.SalesOrderDetail sod ON soh.SalesOrderID = sod.SalesOrderID
+GROUP BY soh.ShipCountryRegionCode
+ORDER BY TotalSales DESC
+LIMIT 10;
 
 -- 37. Number of orders each employee has taken for customers with CustomerIDs between A and AO
-SELECT Employees.EmployeeID, COUNT(Orders.OrderID) AS NumberOfOrders
-FROM Employees
-JOIN Orders ON Employees.EmployeeID = Orders.EmployeeID
-JOIN Customers ON Orders.CustomerID = Customers.CustomerID
-WHERE Customers.CustomerID BETWEEN 'A' AND 'AO'
-GROUP BY Employees.EmployeeID;
+SELECT soh.SalesPersonID, COUNT(soh.SalesOrderID) AS NumberOfOrders
+FROM Sales.SalesOrderHeader soh
+JOIN Sales.Customer c ON soh.CustomerID = c.CustomerID
+WHERE c.CustomerID BETWEEN 'A' AND 'AO'
+GROUP BY soh.SalesPersonID;
 
--- 38. Order date of most expensive order
-SELECT TOP 1 Orders.OrderDate
-FROM Orders
-JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID
-GROUP BY Orders.OrderDate
-ORDER BY SUM(OrderDetails.UnitPrice * OrderDetails.Quantity) DESC;
+-- 38. Orderdate of most expensive order
+SELECT TOP 1 soh.OrderDate
+FROM Sales.SalesOrderHeader soh
+JOIN Sales.SalesOrderDetail sod ON soh.SalesOrderID = sod.SalesOrderID
+GROUP BY soh.SalesOrderID, soh.OrderDate
+ORDER BY SUM(sod.UnitPrice * sod.OrderQty) DESC;
 
 -- 39. Product name and total revenue from that product
-SELECT Products.ProductName, SUM(OrderDetails.UnitPrice * OrderDetails.Quantity) AS TotalRevenue
-FROM Products
-JOIN OrderDetails ON Products.ProductID = OrderDetails.ProductID
-GROUP BY Products.ProductName;
+SELECT p.Name AS ProductName, SUM(sod.UnitPrice * sod.OrderQty) AS TotalRevenue
+FROM Production.Product p
+JOIN Sales.SalesOrderDetail sod ON p.ProductID = sod.ProductID
+GROUP BY p.Name;
 
--- 40. SupplierID and number of products offered
-SELECT SupplierID, COUNT(ProductID) AS NumberOfProducts
-FROM Products
-GROUP BY SupplierID;
+-- 40. Supplierid and number of products offered
+SELECT pv.BusinessEntityID AS SupplierID, COUNT(pv.ProductID) AS NumberOfProducts
+FROM Purchasing.ProductVendor pv
+GROUP BY pv.BusinessEntityID;
 
 -- 41. Top ten customers based on their business
-SELECT TOP 10 Customers.CustomerID, SUM(OrderDetails.UnitPrice * OrderDetails.Quantity) AS TotalSales
-FROM Customers
-JOIN Orders ON Customers.CustomerID = Orders.CustomerID
-JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID
-GROUP BY Customers.CustomerID
-ORDER BY TotalSales DESC;
+SELECT TOP 10
+    c.*,
+    SUM(sod.UnitPrice * sod.OrderQty) AS TotalSpent
+FROM 
+    Sales.Customer c
+JOIN 
+    Sales.SalesOrderHeader soh ON c.CustomerID = soh.CustomerID
+JOIN 
+    Sales.SalesOrderDetail sod ON soh.SalesOrderID = sod.SalesOrderID
+GROUP BY 
+    c.CustomerID, c.CustomerName
+ORDER BY 
+    TotalSpent DESC;
 
 -- 42. What is the total revenue of the company
-SELECT SUM(OrderDetails.UnitPrice * OrderDetails.Quantity) AS TotalRevenue
-FROM OrderDetails;
+SELECT SUM(sod.UnitPrice * sod.OrderQty) AS TotalRevenue
+FROM Sales.SalesOrderDetail sod;
