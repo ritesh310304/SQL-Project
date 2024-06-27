@@ -8,3 +8,5 @@ Level A Task : Executed different Queries on Adventure Works Database 2022.
 Level B Task : Executed different Queries based on Stored Procedures, Functions, Views, and Triggers on Adventure Works Database 2022.
 
 Level C Task : Executed different Queries as per the Tasks Assigned.
+
+Student Allotment SQL Problem :  Created a Stored Procedure to assign all the students to a respective subject according the stated workflow
