@@ -73,7 +73,6 @@ VALUES
 
 -- Step 3: Creating the stored procedure
 
-
 GO
 
 CREATE PROCEDURE AllocateSubjects
@@ -147,4 +146,5 @@ GO
 
 
 -- Step 4: Executing the stored procedure
+    
 EXEC AllocateSubjects;
