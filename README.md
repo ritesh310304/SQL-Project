@@ -9,4 +9,6 @@ Level B Task : Executed different Queries based on Stored Procedures, Functions,
 
 Level C Task : Executed different Queries as per the Tasks Assigned.
 
-Student Allotment SQL Problem :  Created a Stored Procedure to assign all the students to a respective subject according the stated workflow
+Student Allotment SQL Problem : Implemented a Stored Procedure to assign all the students to a respective subject according to the stated workflow.
+
+Subject Change Request Problem : Implemented a Stored Procedure to insert the requested subject as a valid record in the SubjectAllotments Table according to the stated workflow.
