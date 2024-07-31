@@ -13,7 +13,7 @@ The "SQL Projects" repository includes various SQL tasks and projects completed 
 
 
 ## Installation
-To run the project in Microsoft Visual Studio 2022:
+To explore or run the SQL queries and stored procedures:
 1. Clone or download the repository to your local machine.
    
             https://github.com/jaiswalchitransh/SQL-Projects
