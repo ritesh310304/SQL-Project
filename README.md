@@ -1,4 +1,4 @@
-# KIIT Library Management System
+# SQL Projects
 
 ## Table of Contents
 - [Project Overview](#project-overview)
