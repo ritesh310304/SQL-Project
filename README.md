@@ -16,7 +16,7 @@ The "SQL Projects" repository includes various SQL tasks and projects completed 
 To explore or run the SQL queries and stored procedures:
 1. Clone or download the repository to your local machine.
    
-            https://github.com/jaiswalchitransh/SQL-Projects
+            https://github.com/jaiswalchitransh/SQL-Projects.git
    
 2. Open the SQL scripts in your preferred SQL client, such as Microsoft SQL Server Management Studio (SSMS) or Azure Data Studio.
 
