@@ -18,9 +18,9 @@ To explore or run the SQL queries and stored procedures:
    
             https://github.com/jaiswalchitransh/SQL-Projects.git
    
-2. Open the SQL scripts in your preferred SQL client, such as Microsoft SQL Server Management Studio (SSMS) or Azure Data Studio.
+2. Open the SQL scripts in your preferred SQL Environment, such as Microsoft SQL Server Management Studio (SSMS) or Azure Data Studio.
 
-3. Connect to the Adventure Works Database 2022 if required or set up the database as per the provided instructions.
+3. Connect to the  Microsoft's Adventure Works Database 2022 with the SQL Environment. You can download the `AdventureWorks2022.bak` OLTP or Online Transaction Processing from [microsoft.com](https://learn.microsoft.com/en-us/sql/samples/adventureworks-install-configure?view=sql-server-ver16&tabs=ssms/). 
 
 4. Execute the SQL scripts and stored procedures as described in each task.
 
