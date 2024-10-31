@@ -9,7 +9,7 @@
 
 
 ## Project Overview
-The "SQL Projects" repository includes various SQL tasks and projects completed during the Celebal Technologies Summer Internship. This repository demonstrates the practical application of SQL to address real-world scenarios, including data manipulation, querying, and stored procedure implementation using the Adventure Works Database 2022.
+The "SQL Projects" repository includes various SQL tasks and projects completed during the Celebal Technologies Summer Internship. This repository demonstrates the practical application of SQL to address real-world scenarios, including data manipulation, querying, and stored procedure implementation using the Microsoft's Adventure Works Database 2022.
 
 
 ## Installation
@@ -28,19 +28,19 @@ To explore or run the SQL queries and stored procedures:
 ## Usage
 The repository contains various SQL tasks and implementations:
 
-- **Project 1**: Calculated the total work hours of employees based on their check-in and check-out times.
-- **Level A Task**: Executed different queries on the Adventure Works Database 2022.
-- **Level B Task**: Executed queries using Stored Procedures, Functions, Views, and Triggers on the Adventure Works Database 2022.
-- **Level C Task**: Executed queries according to specific tasks assigned.
-- **Student Allotment SQL Problem**: Implemented a stored procedure to assign students to subjects based on a predefined workflow.
-- **Subject Change Request Problem**: Implemented a stored procedure to insert requested subjects as valid records in the SubjectAllotments Table according to the specified workflow.
+- **Project-1**: Calculated the total work hours of employees based on their check-in and check-out times.
+- **Project-2**: Implemented a stored procedure to assign students to subjects based on a predefined workflow.
+- **Project-3**: Implemented a stored procedure to insert requested subjects as valid records in the SubjectAllotments Table according to the specified workflow.
+- **Project-4**: Executed different queries on the Microsoft's Adventure Works Database 2022.
+- **Project-5**: Executed queries using Stored Procedures, Functions, Views, and Triggers on the Microsoft's Adventure Works Database 2022.
+- **Project-6**: Executed queries according to specific tasks assigned.
 
 
 ## Features
-- **Comprehensive SQL Queries**: Various queries to interact with and manipulate data in the Adventure Works Database 2022.
+- **Comprehensive SQL Queries**: Various queries to interact with and manipulate data in the Microsoft's Adventure Works Database 2022.
 - **Stored Procedures**: Implementation of stored procedures to handle complex operations and workflows.
 - **Database Tasks**: Includes calculations, data retrieval, and management tasks relevant to real-world scenarios.
-- **Database Schema**: Utilizes the Adventure Works Database 2022 schema for demonstrating SQL capabilities.
+- **Database Schema**: Utilizes the Microsoft's Adventure Works Database 2022 schema for demonstrating SQL capabilities.
 
 
 ## Contribution
