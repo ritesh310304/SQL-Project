@@ -44,7 +44,7 @@ The repository contains various SQL tasks and implementations:
 
 
 ## Contribution
-I, **[Chitransh Jaiswal](https://www.linkedin.com/in/jaiswalchitransh/)** developed this Project Individually. I was responsible for all aspects of the project, including design, development, testing, and documentation.
+I, **[RITESH KUMAR NAYAK](https://www.linkedin.com/in/ritesh-kumar-nayak-a09749205/)** developed this Project Individually. I was responsible for all aspects of the project, including design, development, testing, and documentation.
 Contributions to improve the efficiency, readability, or functionality of the code are welcome. To contribute:
 1. Fork the repository.
 2. Create a new branch (`git checkout -b feature/your-feature`).
